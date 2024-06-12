@@ -22,6 +22,32 @@ frappe.ui.form.on('Website Item', {
 		frm.add_custom_button(__("Webshop Settings"), function() {
 			frappe.set_route("Form", "Webshop Settings");
 		}, __("View"));
+
+		frm.add_custom_button(__("Save to Prom"), function() {
+			frm.refresh();
+			setTimeout(() => {frm.reload_doc();}, 500);
+
+			setTimeout(() => {  
+			frappe.call({
+				method: "erpnext.e_commerce.doctype.website_item.website_item.save_to_prom_button",
+				args: {doc: frm.doc},
+				callback: function(result) {
+					if (result) {
+						frappe.show_alert({
+							message:__('Successful saving'),
+							indicator:'green'
+						}, 5);
+					} else {
+						frappe.show_alert({
+							message:__('Unexpected error'),
+							indicator:'red'
+						}, 5);
+					}
+				}
+			}); }, 1000);
+
+
+		}, __("Marketplaces"));
 	},
 
 	copy_from_item_group: (frm) => {
