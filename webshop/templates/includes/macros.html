@@ -247,7 +247,10 @@
 	<div class="rating-progress-bar-section col-4 ml-4">
 		{% for percent in reviews_per_rating %}
 			<div class="col-sm-4 small rating-bar-title">
-				{{ loop.index }} star
+				{{ loop.index }} 
+				{% if loop.index == 1 %} {{ _("star", context="one") }}
+				{% elif loop.index <= 4 %} {{ _("star", context="below four") }}
+				{% else%} {{ _("star", context="more") }} {% endif %}
 			</div>
 			<div class="row">
 				<div class="col-md-7">
@@ -296,11 +299,11 @@
 	{%- set item_field =  field_filter[0] %}
 	{%- set values =  field_filter[1] %}
 	<div class="mb-4 filter-block pb-5">
-		<div class="filter-label mb-3">{{ item_field.label }}</div>
+		<div class="filter-label mb-3">{{ _(item_field.label) }}</div>
 
 		{% if values | len > 20 %}
 		<!-- show inline filter if values more than 20 -->
-		<input type="text" class="form-control form-control-sm mb-2 filter-lookup-input" placeholder="Search {{ item_field.label + 's' }}"/>
+		<input type="text" class="form-control form-control-sm mb-2 filter-lookup-input" placeholder="{{_('Search {0}').format(_(item_field.label + 's'))}}"/>
 		{% endif %}
 
 		{% if values %}

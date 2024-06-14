@@ -99,9 +99,7 @@ class ItemConfigure {
 
 	show_range_input_for_all_fields() {
 		this.dialog.fields.forEach(f => {
-			if (!["Section Break", "Coulmn Break"].includes(f.fieldtype)) {
-				this.show_range_input_if_applicable(f.fieldname);
-			}
+			this.show_range_input_if_applicable(f.fieldname);
 		});
 	}
 
@@ -249,7 +247,7 @@ class ItemConfigure {
 		const additional_notes = Object.keys(this.range_values || {}).map(attribute => {
 			return `${attribute}: ${this.range_values[attribute]}`;
 		}).join('\n');
-		webshop.webshop.shopping_cart.update_cart({
+		erpnext.e_commerce.shopping_cart.update_cart({
 			item_code,
 			additional_notes,
 			qty: 1
@@ -259,12 +257,10 @@ class ItemConfigure {
 
 	btn_clear_values() {
 		this.dialog.fields_list.forEach(f => {
-			if (f.df?.options) {
-				f.df.options = f.df.options.map(option => {
-					option.disabled = false;
-					return option;
-				});
-			}
+			f.df.options = f.df.options.map(option => {
+				option.disabled = false;
+				return option;
+			});
 		});
 		this.dialog.clear();
 		this.on_attribute_selection();
@@ -284,14 +280,14 @@ class ItemConfigure {
 	}
 
 	get_next_attribute_and_values(selected_attributes) {
-		return this.call('webshop.webshop.variant_selector.utils.get_next_attribute_and_values', {
+		return this.call('erpnext.e_commerce.variant_selector.utils.get_next_attribute_and_values', {
 			item_code: this.item_code,
 			selected_attributes
 		});
 	}
 
 	get_attributes_and_values() {
-		return this.call('webshop.webshop.variant_selector.utils.get_attributes_and_values', {
+		return this.call('erpnext.e_commerce.variant_selector.utils.get_attributes_and_values', {
 			item_code: this.item_code
 		});
 	}

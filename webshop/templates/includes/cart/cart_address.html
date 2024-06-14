@@ -1,4 +1,4 @@
-{% from "webshop/templates/includes/cart/cart_macros.html" import show_address %}
+{% from "erpnext/templates/includes/cart/cart_macros.html" import show_address %}
 
 {% if addresses | length == 1%}
 	{% set select_address = True %}
@@ -24,35 +24,35 @@
 	{% endfor %}
 </div>
 
-<!-- Billing Address -->
+<!-- Billing Address
 <div class="checkbox ml-1 mb-2">
 	<label for="input_same_billing">
 		<input type="checkbox" class="product-filter" id="input_same_billing" checked style="width: 14px !important">
 		<span class="label-area font-md">{{ _('Billing Address is same as Shipping Address') }}</span>
 	</label>
-</div>
+</div> -->
 
-
-<div class="mb-3 frappe-card p-5" data-section="billing-address">
-	<div class="d-flex">
-		<div class="col-6 address-header"><h6>{{ _("Billing Address") }}</h6></div>
-		<div class="col-6" style="padding: 0;">
-			<a class="ml-4 btn-new-address" role="button">{{ _("Add a new address") }}</a>
+<!-- {% if billing_addresses %}
+	<div class="mb-3 frappe-card p-5" data-section="billing-address">
+		<div class="d-flex">
+			<div class="col-6 address-header"><h6>{{ _("Billing Address") }}</h6></div>
+			<div class="col-6" style="padding: 0;">
+				<a class="ml-4 btn-new-address" role="button">{{ _("Add a new address") }}</a>
+			</div>
 		</div>
+
+		<hr>
+		{% for address in billing_addresses %}
+			{% if doc.customer_address == address.name %}
+			<div class="row no-gutters" data-fieldname="customer_address">
+				<div class="w-100 address-container" data-address-name="{{address.name}}" data-address-type="billing" data-active>
+						{% include "templates/includes/cart/address_card.html" %}
+					</div>
+			</div>
+			{% endif %}
+		{% endfor %}
 	</div>
-
-	<hr>
-	{% for address in billing_addresses %}
-		{% if doc.customer_address == address.name %}
-		<div class="row no-gutters" data-fieldname="customer_address">
-			<div class="w-100 address-container" data-address-name="{{address.name}}" data-address-type="billing" data-active>
-					{% include "templates/includes/cart/address_card.html" %}
-				</div>
-		</div>
-		{% endif %}
-	{% endfor %}
-</div>
-
+{% endif %} -->
 
 <script>
 frappe.ready(() => {
@@ -87,13 +87,19 @@ frappe.ready(() => {
 				{
 					label: __('Address Line 2'),
 					fieldname: 'address_line2',
-					fieldtype: 'Data'
+					fieldtype: 'Data',
+					hidden: 1
 				},
 				{
 					label: __('City/Town'),
 					fieldname: 'city',
 					fieldtype: 'Data',
 					reqd: 1
+				},
+				{
+					fieldname: "column_break0",
+					fieldtype: "Column Break",
+					width: "50%"
 				},
 				{
 					label: __('State'),
@@ -106,12 +112,9 @@ frappe.ready(() => {
 					fieldtype: 'Link',
 					options: 'Country',
 					only_select: true,
+					default: 'Ukraine',
+					hidden: 1,
 					reqd: 1
-				},
-				{
-					fieldname: "column_break0",
-					fieldtype: "Column Break",
-					width: "50%"
 				},
 				{
 					label: __('Address Type'),
@@ -121,6 +124,8 @@ frappe.ready(() => {
 						'Billing',
 						'Shipping'
 					],
+					default: 'Shipping',
+					hidden: 1,
 					reqd: 1
 				},
 				{
@@ -134,13 +139,23 @@ frappe.ready(() => {
 					label: "Phone",
 					reqd: 1
 				},
+				{
+					fieldname: "section_break1",
+					fieldtype: "Section Break",
+					label: "Shipment Options",
+				},
+				{
+					fieldname: "phone2",
+					fieldtype: "Data",
+					label: "Phone",
+				},
 			],
 			primary_action_label: __('Save'),
 			primary_action: (values) => {
-				frappe.call('webshop.webshop.shopping_cart.cart.add_new_address', { doc: values })
+				frappe.call('erpnext.e_commerce.shopping_cart.cart.add_new_address', { doc: values })
 					.then(r => {
 						frappe.call({
-							method: "webshop.webshop.shopping_cart.cart.update_cart_address",
+							method: "erpnext.e_commerce.shopping_cart.cart.update_cart_address",
 							args: {
 								address_type: r.message.address_type,
 								address_name: r.message.name
@@ -185,80 +200,29 @@ frappe.ready(() => {
 		$('[data-section="billing-address"]').toggle(flag);
 	}
 });
-</script>
 
-<script>
-	frappe.ready(() => {
-		function get_update_address_dialog() {
-			let d = new frappe.ui.Dialog({
-				title: "Select Address",
-				fields: [{
-					'fieldtype': 'HTML',
-					'fieldname': 'address_picker',
-				}],
-				primary_action_label: __('Set Address'),
-				primary_action: () => {
-					const $card = d.$wrapper.find('.address-card.active');
-					const address_type = $card.closest('[data-address-type]').attr('data-address-type');
-					const address_name = $card.closest('[data-address-name]').attr('data-address-name');
-					frappe.call({
-						type: "POST",
-						method: "webshop.webshop.shopping_cart.cart.update_cart_address",
-						freeze: true,
-						args: {
-							address_type,
-							address_name
-						},
-						callback: function(r) {
-							d.hide();
-							if (!r.exc) {
-								$(".cart-tax-items").html(r.message.total);
-								shopping_cart.parent.find(
-									`.address-container[data-address-type="${address_type}"]`
-								).html(r.message.address);
-							}
-						}
-					});
-				}
-			});
-
-			return d;
-		}
-
-		function get_address_template(type) {
-			return {
-				shipping: `<div class="mb-3" data-section="shipping-address">
-					<div class="row no-gutters" data-fieldname="shipping_address_name">
-						{% for address in shipping_addresses %}
-							<div class="mr-3 mb-3 w-100" data-address-name="{{address.name}}" data-address-type="shipping"
-								{% if doc.shipping_address_name == address.name %} data-active {% endif %}>
-								{% include "templates/includes/cart/address_picker_card.html" %}
-							</div>
-						{% endfor %}
-					</div>
-				</div>`,
-				billing: `<div class="mb-3" data-section="billing-address">
-					<div class="row no-gutters" data-fieldname="customer_address">
-						{% for address in billing_addresses %}
-							<div class="mr-3 mb-3 w-100" data-address-name="{{address.name}}" data-address-type="billing"
-								{% if doc.shipping_address_name == address.name %} data-active {% endif %}>
-								{% include "templates/includes/cart/address_picker_card.html" %}
-							</div>
-						{% endfor %}
-					</div>
-				</div>`,
-			}[type];
-		}
-
-		$(document).on('click', '.btn-change-address', (e) => {
-			const d = get_update_address_dialog();
-			const type = $(e.currentTarget).parents('.address-container').attr('data-address-type');
-
-			$(d.get_field('address_picker').wrapper).html(
-				get_address_template(type)
-			);
-
-			d.show();
-		});
-	});
+function get_address_template(type) {
+		return {
+			shipping: `<div class="mb-3" data-section="shipping-address">
+				<div class="row no-gutters" data-fieldname="shipping_address_name">
+					{% for address in shipping_addresses %}
+						<div class="mr-3 mb-3 w-100" data-address-name="{{address.name}}" data-address-type="shipping"
+							{% if doc.shipping_address_name == address.name %} data-active {% endif %}>
+							{% include "templates/includes/cart/address_picker_card.html" %}
+						</div>
+					{% endfor %}
+				</div>
+			</div>`,
+			billing: `<div class="mb-3" data-section="billing-address">
+				<div class="row no-gutters" data-fieldname="customer_address">
+					{% for address in billing_addresses %}
+						<div class="mr-3 mb-3 w-100" data-address-name="{{address.name}}" data-address-type="billing"
+							{% if doc.shipping_address_name == address.name %} data-active {% endif %}>
+							{% include "templates/includes/cart/address_picker_card.html" %}
+						</div>
+					{% endfor %}
+				</div>
+			</div>`,
+		}[type];
+	}
 </script>

@@ -1,5 +1,6 @@
 import frappe
 from frappe.utils import cint
+from frappe.translate import get_all_translations
 
 from webshop.webshop.product_data_engine.filters import ProductFiltersBuilder
 
@@ -20,3 +21,5 @@ def get_context(context):
 	)
 
 	context.no_cache = 1
+	language = get_all_translations(frappe.local.lang)
+	context.translated_messages = language

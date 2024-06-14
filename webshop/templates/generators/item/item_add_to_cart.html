@@ -9,17 +9,13 @@
 		{% if cart_settings.show_price and product_info.price %}
 			{% set price_info = product_info.price %}
 
-			<div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/AggregateOffer">
+			<div class="product-price">
 				<!-- Final Price -->
-				{% if price_info.formatted_mrp %}
-					<span itemprop="lowPrice" content="{{ price_info.formatted_price_sales_uom }}">{{ price_info.formatted_price_sales_uom }}</span>
-				{% else %}
-					<span itemprop="highPrice" content="{{ price_info.formatted_price_sales_uom }}">{{ price_info.formatted_price_sales_uom }}</span>
-				{% endif %}
+				{{ price_info.formatted_price_sales_uom }}
 
 				<!-- Striked Price and Discount  -->
 				{% if price_info.formatted_mrp %}
-					<small itemprop="highPrice" class="formatted-price">
+					<small class="formatted-price">
 						<s>MRP {{ price_info.formatted_mrp }}</s>
 					</small>
 					<small class="ml-1 formatted-price in-green">
@@ -29,11 +25,11 @@
 
 				<!-- Price per UOM -->
 				<small class="formatted-price ml-2">
-					({{ price_info.formatted_price }} / {{ product_info.uom }})
+					({{ price_info.formatted_price }} / {{ _(product_info.uom) }})
 				</small>
 			</div>
 		{% else %}
-			{{ _("UOM") }} : {{ product_info.uom }}
+			{{ _("UOM") }} : {{ _(product_info.uom) }}
 		{% endif %}
 
 		{% if cart_settings.show_stock_availability %}
@@ -50,7 +46,7 @@
 				<span class="in-green has-stock">
 					{{ _('In stock') }}
 					{% if product_info.show_stock_qty and product_info.stock_qty %}
-						({{ product_info.stock_qty }})
+						({{ product_info.stock_qty[0][0] }})
 					{% endif %}
 				</span>
 			{% endif %}
@@ -95,7 +91,7 @@
 		<div class="mt-6 mb-5">
 			<div class="mb-4 d-flex">
 				<!-- Add to Cart -->
-				{% if product_info.price and (cart_settings.allow_items_not_in_stock or product_info.get("in_stock")) %}
+				{% if product_info.price and (cart_settings.allow_items_not_in_stock or product_info.in_stock) %}
 					<a href="/cart" class="btn btn-light btn-view-in-cart hidden mr-2 font-md"
 						role="button">
 						{{  _("View in Cart") if cart_settings.enable_checkout else _("View in Quote") }}
@@ -109,6 +105,7 @@
 								<use href="#icon-assets"></use>
 							</svg>
 						</span>
+					
 						{{ _("Add to Cart") if cart_settings.enable_checkout else  _("Add to Quote") }}
 					</button>
 				{% endif %}
@@ -129,7 +126,7 @@
 			const $btn = $(e.currentTarget);
 			$btn.prop('disabled', true);
 			const item_code = $btn.data('item-code');
-			webshop.webshop.shopping_cart.update_cart({
+			erpnext.e_commerce.shopping_cart.update_cart({
 				item_code,
 				qty: 1,
 				callback(r) {
@@ -161,7 +158,7 @@
 			});
 
 			frappe.call({
-				method: 'webshop.webshop.doctype.website_offer.website_offer.get_offer_details',
+				method: 'erpnext.e_commerce.doctype.website_offer.website_offer.get_offer_details',
 				args: {
 					offer_id: $btn.data('offer-id')
 				},

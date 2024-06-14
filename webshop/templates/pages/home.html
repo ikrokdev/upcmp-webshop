@@ -1,0 +1,361 @@
+{% extends "templates/web.html" %}
+
+{% from "erpnext/templates/includes/macros.html" import render_homepage_section %}
+
+{% block content %}
+
+
+{% macro publication_card_template(publication) -%}
+<div class="blog-card-wrapper col-sm-4">
+	<div class="blog-card-img-wrapper">
+		<img src="{{publication.meta_image}}" class="packages-card-image">
+	</div>
+
+	<div class="blog-card">
+		<h3 title="{{publication.title}}" class="blog-card-title">{{ publication.title }}</h3>
+		<p class="blog-card-date">{{ publication.published_on }}</p>
+		<p class="blog-card-description">{{publication.blog_intro}}</p>
+		<button class="blog-card-button"><a class="publication-link" href="{{ publication.route }}"> Читати
+				статю</a></button>
+	</div>
+</div>
+{%- endmacro %}
+
+{% macro review_card_template(review) -%}
+<div class="feedback-card-wrapper col-sm-2">
+	<div class="feedback-img-wrapper">
+		<img src="{{review.website_image}}" class="packages-card-image">
+	</div>
+	<div class="feedback-card">
+		<h3 title="{{review.review_title}}" class="feedback-card-title">{{review.review_title}}</h3>
+		<p class="feedback-card-description">{{review.comment}}</p>
+	</div>
+	<div class="feedback-info">
+		<p title="{{review.user}}" class="feedback-author">{{review.customer}}</p>
+		<div class="rating">
+			{% for i in [1, 2, 3, 4, 5] %}
+				<svg class="icon icon-md {% if i <= review.rating * 5 %} star-click {% endif %}" data-rating="{{ i }}">
+					<use href="#icon-star"></use>
+				</svg>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{%- endmacro %}
+
+{% macro packages_template(bundle) -%}
+	<div class="package-card col-md-5">
+		<div class="package-card-text">
+			<div class="packages-card-text-title">
+				{{bundle.parent_item.item_name}}
+			</div>
+			<div class="packages-card-text-description">
+				{{ bundle.price }} грн
+			</div>
+			{% if bundle.route %}
+			<a href="{{ bundle.route }}">
+				<button class="packages-card-button">Детальніше</button>
+			</a>
+			{% else %}
+			<button class="packages-card-button disabled">
+				Скоро
+			</button>
+			{% endif %}
+
+		</div>
+		<div class="img-wrapper">
+			<img class="packages-card-image" src="{{ bundle.parent_item.image }}"
+				alt="Продукти здорового харчування"
+				style="max-height: 250px;">
+		</div>
+	</div>
+{%- endmacro %}
+
+{% macro slider_wrapper(render_macro, list, prefix = "", row_size = 3) -%}
+<div class="{{prefix}}-macro-carousel-container macro-carousel-container">
+	<div class="{{prefix}}-macro-carousel-track-container macro-carousel-track-container">
+		<div class="{{prefix}}-macro-carousel-track macro-carousel-track"  style="width: {{((list|length / row_size)|round|int) * (100)}}%">
+			{% set opens = [] %}
+			{% set closes = [] %}
+			
+			{% for item in range((list|length / row_size)|round|int + 1) %}
+				{{ opens.append(1+(row_size*(loop.index-1))) or "" }}
+				{{ closes.append(row_size+(row_size*(loop.index-1))) or "" }}
+			{% endfor %}
+
+			{% for item in list %}
+				{% if loop.index == 1 or loop.index in opens %}
+					<div class="{{prefix}}-macro-carousel-slide macro-carousel-slide">
+				{%- endif %}
+				{{ render_macro(item) }}
+				{% if loop.index == row_size or (loop.index in closes) %}
+					</div>
+				{%- endif %}
+			{% endfor %}
+		</div>
+	</div>
+	<ul class="{{prefix}}-macro-carousel-indicator macro-carousel-indicator">
+	</ul>
+</div>
+{%- endmacro %}
+
+<main style="
+margin-top: -100px;
+">
+	<!-- {% if homepage.hero_section_based_on == 'Default' %}
+	<section class="hero-section border-bottom {%if homepage.hero_image%}hero-image{%endif%}"
+		{% if homepage.hero_image %}
+		style="background-image: url('{{ homepage.hero_image }}');"
+		{%- endif %}
+	>
+		<div class="container py-5">
+			<h1 class="d-none d-sm-block display-4">{{ homepage.tag_line }}</h1>
+			<h1 class="d-block d-sm-none">{{ homepage.tag_line }}</h1>
+			<h2 class="d-none d-sm-block">{{ homepage.description }}</h2>
+			<h3 class="d-block d-sm-none">{{ homepage.description }}</h3>
+		</div>
+
+		<div class="container">
+			<a href="{{ explore_link }}" class="mb-5 btn btn-primary">{{ _('Explore') }}</a>
+		</div>
+	</section>
+	{% elif homepage.hero_section_based_on == 'Slideshow' and slideshow %}
+	<section class="hero-section">
+		{% include "templates/includes/slideshow.html" %}
+	</section>
+	{% elif homepage.hero_section_based_on == 'Homepage Section' %}
+		{{ render_homepage_section(homepage.hero_section_doc) }}
+	{% endif %}
+
+	{% if homepage.products %}
+	<section class="container section-products my-5">
+		<h3>{{ _('Products') }}</h3>
+
+		<div class="row">
+			{% for item in homepage.products %}
+			<div class="col-md-4 mb-4">
+				<div class="card h-100 justify-content-between">
+					<img class="card-img-top website-image-extra-large" src="{{ item.image }}" loading="lazy" alt="{{ item.item_name }}"></img>
+					<div class="card-body flex-grow-0">
+						<h5 class="card-title">{{ item.item_name }}</h5>
+						<a href="{{ item.route }}" class="card-link">{{ _('More details') }}</a>
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</section>
+	{% endif %} -->
+
+	<section id="home-carousel-banner">
+		<div class="home-carousel-baner-container">
+			<div class="carousel-block home-carousel-slider col-sm-6">
+				<div class="home-carousel-track">
+					<div class="home-carousel-slide">
+						<div class="carousel-slide-text">
+							<div class="carousel-text-title carousel-slide-text-title">
+								Натуральна та органічна продукція
+							</div>
+							<div class="carousel-text-description carousel-slide-text-description">
+								Їжа,харчові добавки,засоби догляду за оселею,косметика
+							</div>
+						</div>
+
+						<div class="image-wrapper">
+							<img class="carousel-image" src="/files/slider-nuts.png"
+								alt="Продукти здорового харчування">
+						</div>
+					</div>
+					<div class="carousel-slide-button">
+						Купити
+					</div>
+				</div>
+				<div class="slider-controls">
+					<button class="slider-control"><</button>
+					<button class="slider-control">></button>
+				</div>
+			</div>
+			<div class="vertical-sep"></div>
+			<div class="carousel-block carousel-banner col-sm-4">
+				<div class="carousel-banner-content">
+					<div class="carousel-banner-text">
+						<div class="carousel-text-title carousel-banner-text-title">
+							Придбай готовий набір або збери сам
+						</div>
+						<div class="carousel-text-description carousel-banner-text-description">
+							Набір на 30 днів, набір на тиждень, набір для двох,набір економ
+						</div>
+					</div>
+					<div class="carousel-banner-button">
+						Купити
+					</div>
+					<img class="carousel-image banner-image" src="/files/slider-products.png"
+						alt="Продукти здорового харчування">
+				</div>
+			</div>
+		</div>
+	</section>
+	<section id="home-product-circles">
+		<div class="section-title">
+			<h2 class="col-md-5">Продукція компанії</h2>
+			<div class="col-md-5"></div>
+		</div>
+		<div class="categories-circle-wrapper">
+			<object data="./categories-circle.svg" type="image/svg+xml" id="circlesSvg"></object>
+		</div>
+	</section>
+	{% if bundles %}
+	<section id="home-packages">
+		<div class="section-title">
+			<h2 class="col-md-5">Пакетні пропозиції</h2>
+			<div class="vertical-sep"></div>
+			<div class="vertical-sep"></div>
+			<div class="slider-controls col-md-5">
+				<button class="slider-control"><</button>
+				<button class="slider-control">></button>
+			</div>
+		</div>
+		<div class="packages-container">
+			{% for bundle in bundles %}
+			{{ packages_template(bundle) }}
+			{% endfor %}
+		</div>
+	</section>
+	{% endif %}
+
+	{% if blogs %}
+	<section id="home-publications">
+		<div class="section-title">
+			<h2 class="col-md-5">Публікації</h2>
+			<div class="vertical-sep"></div>
+			<div class="vertical-sep"></div>
+			<div class="slider-controls col-md-5">
+				<button class="blogs-slider-control slider-control" id="blogs-prev-btn"><</button>
+				<button class="blogs-slider-control slider-control" id="blogs-next-btn">></button>
+			</div>
+		</div>
+		<div class="cards-wrapper">
+			{{slider_wrapper(publication_card_template, blogs, "blogs", 3)}}
+		</div>
+	</section>
+	{% endif %}
+
+	{% if reviews %}
+	<section id="feedback">
+		<div class="section-title">
+			<h2 class="col-md-5">Ваші відгуки</h2>
+			<div class="vertical-sep"></div>
+			<div class="vertical-sep"></div>
+			<div class="slider-controls col-md-5">
+				<button class="review-slider-control slider-control" id="review-prev-btn"><</button>
+				<button class="review-slider-control slider-control" id="review-next-btn">></button>
+			</div>
+		</div>
+		<div class="cards-wrapper">
+			{{ slider_wrapper(review_card_template, reviews, "review", 4) }}
+		</div>
+	</section>
+	{% endif %}
+
+	<!-- {% for section in homepage_sections %}
+	{{ render_homepage_section(section) }}
+	{% endfor %} -->
+	<script>
+		const slidersSections = ["blogs", "review"];
+
+		const slides = slidersSections.map(section =>
+			document.querySelectorAll(`.${section}-macro-carousel-slide`));
+		const carouselContainer = slidersSections.map(section =>
+			document.querySelector(`.${section}-macro-carousel-container`));
+		const carouselTrack = slidersSections.map(section =>
+			document.querySelector(`.${section}-macro-carousel-track`));
+
+		const nextBtn = [...slidersSections.map(section =>
+			document.querySelector(`#${section}-next-btn`))];
+		const prevBtn = [...slidersSections.map(section =>
+			document.querySelector(`#${section}-prev-btn`))];
+		const indList = slidersSections.map(section =>
+			document.querySelector(`.${section}-macro-carousel-indicator`));
+
+		let activeSlideIndex = slidersSections.map(i => 0);
+
+		const moveSlide = (dir, sliderIndex) => {
+			let imgWidth = carouselContainer[sliderIndex].clientWidth;
+			if (dir === "prev") {
+				if (activeSlideIndex[sliderIndex] > 0) {
+					activeSlideIndex[sliderIndex]--;
+				} else {
+					activeSlideIndex[sliderIndex] = slides[sliderIndex].length - 1;
+				}
+			} else if (dir === "next") {
+				if (activeSlideIndex[sliderIndex] < slides[sliderIndex].length - 1) {
+					activeSlideIndex[sliderIndex]++;
+				} else {
+					activeSlideIndex[sliderIndex] = 0;
+				}
+			}
+
+			carouselTrack[sliderIndex].style.transform = 
+				`translateX(-${activeSlideIndex[sliderIndex] * imgWidth}px)`;
+		}
+
+		const moveSlides = idx => {
+			let diff = idx - activeSlideIndex;
+			if (diff >= 0) {
+				for (let i = 0; i < diff; i++) {
+					moveSlide("next");
+				}
+			} else {
+				diff *= -1;
+				for (let i = 0; i < diff; i++) {
+					moveSlide("prev");
+				}
+			}
+		}
+		
+		nextBtn.forEach((btn, i)=> {
+			btn.addEventListener("click", () => {
+				moveSlide("next", i)
+			});
+		});
+		prevBtn.forEach((btn, i)=> {
+			btn.addEventListener("click", () => {
+				moveSlide("prev", i)
+			});
+		});
+
+		document.addEventListener("DOMContentLoaded", () => {
+			
+		});
+
+		const circlesSvg = document.getElementById("circlesSvg");
+		circlesSvg.addEventListener("load",() => {
+			
+
+			const urls = {
+			food: '/all-products',
+			health: '/all-products',
+			home: '/all-products',
+			};
+
+			const svgDoc = circlesSvg.contentDocument;
+
+			const circles = {
+			food: svgDoc.getElementById('circle_food'),
+			health: svgDoc.getElementById('circle_health'),
+			home: svgDoc.getElementById('circle_home'),
+			};
+
+			circles.food.addEventListener('click', () => {
+			window.open(urls.food, '_blank').focus();
+			});
+			circles.health.addEventListener('click', () => {
+			window.open(urls.health, '_blank').focus();
+			});
+			circles.home.addEventListener('click', () => {
+			window.open(urls.home, '_blank').focus();
+			});
+		});
+	</script>
+</main>
+{% endblock %}

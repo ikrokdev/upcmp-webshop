@@ -1,0 +1,113 @@
+
+<form id="shipment-data">
+	<div>
+		<h4 class="">{{ _("Contacts") }} *</h4>
+		<div class="mb-3 frappe-card p-5" data-section="shipping-address">
+			<div class="mb-3">
+				<label for="phoneInput" class="form-label">{{ _("Phone") }} *</label>
+				<input aria-invalid="false" aria-required="true" id="phoneInput" placeholder="+380 (__) ___-__-__" class="form-control col-5" type="tel" size="13">
+			</div>
+			<div class="mb-3">
+				<label for="surnameInput" class="form-label">{{ _("Name") }} *</label>
+				<input aria-invalid="false" aria-required="true" id="surnameInput" placeholder="Введіть ім'я кирилицею" minlength="2" maxlength="100" class="form-control col-5" type="text">
+			</div>
+			<div class="mb-3">
+				<label for="firstNameInput" class="form-label">{{ _("Surname") }} *</label>
+				<input aria-invalid="false" aria-required="true" id="firstNameInput" placeholder="Введіть прізвище кирилицею" minlength="2" maxlength="100" class="form-control col-5" type="text">
+			</div>
+		</div>
+	</div>
+	<div>
+		<h4 class="">{{ _("Shipment") }} *</h4>
+		<div class="mb-3 frappe-card p-5" data-section="shipping-address">
+			<div class="mb-3">
+				
+				<label for="novaposhta_option">
+					<input type="radio" id="novaposhta_option" name="provider" value="novaposhta_option">Нова пошта
+				</label><br>
+				
+				<div id="NovaPoshtaFields">
+					<div class="mb-3">
+						<label for="cityInput" class="form-label">{{ _("Area") }} *</label>
+						<input class="form-control col-5" type="text" id="cityInput" name="additionalField1" placeholder="Area">
+						<div id="autocomplete-results" style="display: none;"></div>
+					</div>
+					<div class="mb-3">
+						<label for="warehouseInput" class="form-label">{{ _("City") }} *</label>
+						<input class="form-control col-5" type="text" id="warehouseInput" name="additionalField2" placeholder="City">
+						<br>
+					</div>
+					<div class="mb-3">
+						<label for="warehouseInput" class="form-label">{{ _("Warehouse") }} *</label>
+						<input class="form-control col-5" type="text" id="warehouseInput" name="additionalField2" placeholder="City">
+						<br>
+					</div>
+				</div>
+
+				<label for="pickup">
+					<input type="radio" id="pickup" name="provider" value="pickup">Самовивіз
+				</label><br>
+
+				<div id="myDiv">
+					
+				</div>
+			
+			
+				
+			</div>
+		</div>
+	</div>
+	<input class="btn" type="submit" value="Submit">
+</form>
+
+
+
+<script>
+	frappe.ready(() => {
+		// Visability for fields
+		$(document).ready(function() {
+			$('input[type="radio"][name="option"]').change(function() {
+				if (this.value === 'novaposhta_option') {
+					$('#NovaPoshtaFields').show();
+				} else {
+					$('#NovaPoshtaFields').hide();
+				}
+			});
+		});
+		// TODO
+		$(document).ready(function() {
+		$("#cityInput").on("input", function() {
+			var input = $(this).val();
+
+			if (input.length > 0) {
+				var data = ['Варіант 1', 'Варіант 2', 'Варіант 3']; // Замініть це вашими даними
+
+				var results = data.filter(function(item) {
+					return item.toLowerCase().indexOf(input.toLowerCase()) > -1;
+				});
+
+				displayResults(results);
+			} else {
+				$("#autocomplete-results").hide();
+			}
+		});
+
+		function displayResults(results) {
+			var container = $("#autocomplete-results");
+			container.empty();
+
+			if (results.length === 0) {
+				container.hide();
+				return;
+			}
+
+			results.forEach(function(item) {
+				container.append('<div>' + item + '</div>');
+			});
+
+			container.show();
+		}
+	});
+	});
+</script>
+
