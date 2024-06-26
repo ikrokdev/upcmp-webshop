@@ -7,10 +7,10 @@ from frappe.utils.password import get_decrypted_password
 from frappe.utils import get_host_name
 import pytz
 
-ERP_URL = "http://{}".format(get_host_name())
+ERP_URL = frappe.utils.get_url()
 API_KEY = frappe.db.get_value("Prom settings", "Prom settings", "erp_key")
 API_SECRET = get_decrypted_password("Prom settings", "Prom settings", "erp_secret")
-COMPANY = frappe.db.get_single_value("E Commerce Settings", "company")
+COMPANY = frappe.db.get_default("company")
 conn = ERPClient(ERP_URL, api_key=API_KEY, api_secret=API_SECRET)
 
 AUTH_TOKEN = get_decrypted_password("Prom settings", "Prom settings", "prom_token")
@@ -165,25 +165,25 @@ def create_sales_order(client_info, order):
             item_erp = conn.get_list(
                 'Website Item',
                 filters=[['Website Item', 'item_code', '=', item['sku']]])
-            if item_erp:
-                item_erp = item_erp[0]
-            else:
+            if not item_erp:
                 frappe.msgprint("Product not found.")
-            # item_erp = conn.get_doc('Website Item', item['external_id'])
-            if item_erp.get('item_code'):
-                item_price = conn.get_doc(
-                    'Item Price',
-                    filters=[['Item Price', 'item_code', '=', item_erp['item_code']]],
-                    fields=['price_list_rate']
-                    )
-                body['items'].append({
-                    'delivery_date': four_days_plus.strftime("%Y-%m-%d"),
-                    'item_code': item_erp['item_code'],
-                    'qty': int(item['quantity']),
-                    'rate': item_price[0]['price_list_rate'],
-                    'warehouse': 'All Warehouses - UP',
-                    'doctype': 'Sales Order Item'
-                })
+            else:
+                item_erp = item_erp[0]
+                # item_erp = conn.get_doc('Website Item', item['external_id'])
+                if item_erp.get('item_code'):
+                    item_price = conn.get_doc(
+                        'Item Price',
+                        filters=[['Item Price', 'item_code', '=', item_erp['item_code']]],
+                        fields=['price_list_rate']
+                        )
+                    body['items'].append({
+                        'delivery_date': four_days_plus.strftime("%Y-%m-%d"),
+                        'item_code': item_erp['item_code'],
+                        'qty': int(item['quantity']),
+                        'rate': item_price[0]['price_list_rate'],
+                        'warehouse': 'All Warehouses - UP',
+                        'doctype': 'Sales Order Item'
+                    })
         order_erp = frappe.get_doc(body)
         # frappe.db.commit()
         # order_erp = frappe.get_doc("Sales Order", temp["name"])

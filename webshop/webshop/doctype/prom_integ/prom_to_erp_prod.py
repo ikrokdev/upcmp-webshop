@@ -8,7 +8,7 @@ from frappe.utils import get_host_name
 from .groups_get import main as group_get
 import frappe
 
-ERP_URL = 'https://{}'.format(get_host_name())
+ERP_URL = frappe.utils.get_url()
 API_KEY = frappe.db.get_value('Prom settings', 'Prom settings', 'erp_key')
 API_SECRET = get_decrypted_password('Prom settings', 'Prom settings', 'erp_secret')
 conn = ERPClient(ERP_URL, api_key=API_KEY, api_secret=API_SECRET)
@@ -145,6 +145,14 @@ def calculate_website_item(item_prom):
 
 @frappe.whitelist()
 def main():
+    if not frappe.db.exists('Price List', 'Prom Selling'):
+        conn.insert({
+            'price_list_name': 'Prom Selling',
+            'selling': 1,
+            'doctype': 'Price List',
+            'countries': [{"country": "Ukraine"}]
+        })
+
     not_imported_items = []
     group_get()
     product_list = p_client.get_all_products()

@@ -1,1 +1,11 @@
 # frappe -- https://github.com/frappe/frappe is installed via 'bench init'
+certifi==2022.12.7
+charset-normalizer==2.1.1
+idna==3.4
+numpy==1.24.1
+pandas==1.5.2
+python-dateutil==2.8.2
+requests-toolbelt==0.10.1
+six==1.16.0
+urllib3==1.26.13
+loguru==0.7.2

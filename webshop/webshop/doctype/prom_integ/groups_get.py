@@ -1,13 +1,11 @@
-from dotenv import load_dotenv
 from .prom_client.frappeclient import FrappeClient as ERPClient
 from .prom_client.prom_sync import EvoClient as PromClient
-import os
 from pprint import pprint
 import frappe
 from frappe.utils.password import get_decrypted_password
 from frappe.utils import get_host_name
 
-ERP_URL = "https://{}".format(get_host_name())
+ERP_URL = frappe.utils.get_url()
 API_KEY = frappe.db.get_value("Prom settings", "Prom settings", "erp_key")
 API_SECRET = get_decrypted_password("Prom settings", "Prom settings", "erp_secret")
 conn = ERPClient(ERP_URL, api_key=API_KEY, api_secret=API_SECRET)
